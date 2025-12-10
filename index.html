@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML & CSS Mastery Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .option-label { cursor: pointer; transition: all 0.2s; }
+        .option-radio { display: none; }
+        .option-card { border: 2px solid #e5e7eb; }
+        .option-radio:checked + .option-card { border-color: #3b82f6; background-color: #eff6ff; }
+        .correct-answer { background-color: #d1fae5 !important; border-color: #10b981 !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold">HTML & CSS Mastery Quiz</h1>
+            <div id="timer" class="text-lg font-mono hidden">00:00</div>
+        </div>
+    </header>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="container mx-auto px-4 py-10 max-w-2xl text-center">
+        <div class="bg-white rounded-xl shadow-md p-8">
+            <div class="mb-6 text-6xl">👨‍💻</div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Ready to test your skills?</h2>
+            <p class="text-gray-600 mb-6">This quiz contains 30+ questions covering HTML Basics, CSS Selectors, Colors, Typography, and the Box Model.</p>
+            
+            <div class="flex justify-center space-x-4 mb-8 text-sm text-gray-500">
+                <span class="flex items-center">📝 32 Questions</span>
+                <span class="flex items-center">⏱️ No Time Limit</span>
+                <span class="flex items-center">🏆 Instant Result</span>
+            </div>
+
+            <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition transform hover:scale-105 shadow-lg">
+                Start Quiz Now
+            </button>
+        </div>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quiz-container" class="container mx-auto px-4 py-8 max-w-3xl hidden">
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+            <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+            <div class="flex justify-between items-center mb-4">
+                <span id="question-number" class="text-sm font-semibold text-blue-600 tracking-wide">QUESTION 1/32</span>
+                <span class="text-xs text-gray-400">Select one answer</span>
+            </div>
+            
+            <h3 id="question-text" class="text-xl md:text-2xl font-semibold text-gray-800 mb-8 leading-snug">
+                Question goes here?
+            </h3>
+
+            <div id="options-container" class="space-y-3">
+                <!-- Options will be injected here -->
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mt-8 flex justify-between">
+            <button id="prev-btn" onclick="prevQuestion()" class="px-6 py-2 rounded-lg text-gray-600 hover:bg-gray-200 font-medium disabled:opacity-50 hidden">
+                Previous
+            </button>
+            <button id="next-btn" onclick="nextQuestion()" class="ml-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">
+                Next Question
+            </button>
+            <button id="submit-btn" onclick="submitQuiz()" class="ml-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition hidden">
+                Submit Quiz
+            </button>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="container mx-auto px-4 py-10 max-w-3xl hidden">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-blue-600 p-8 text-center text-white">
+                <h2 class="text-3xl font-bold mb-2">Quiz Completed!</h2>
+                <p class="opacity-90">Here is your performance report</p>
+                
+                <div class="mt-6 flex justify-center items-center">
+                    <div class="w-32 h-32 rounded-full border-4 border-white flex items-center justify-center bg-blue-500">
+                        <div>
+                            <span id="final-score" class="text-4xl font-bold">0</span>
+                            <span class="text-sm block">/ 32</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="score-message" class="mt-4 font-medium text-lg">Good Job!</div>
+            </div>
+
+            <div class="p-6 md:p-8 bg-gray-50">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Detailed Review</h3>
+                <div id="review-container" class="space-y-6">
+                    <!-- Review items injected here -->
+                </div>
+            </div>
+            
+            <div class="p-6 text-center border-t border-gray-200">
+                <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-gray-400 text-sm">
+        <p>&copy; 2024 HTML & CSS Quiz App. Built for Students.</p>
+    </footer>
+
+    <script>
+        // Quiz Data - 32 Questions based on HTML & CSS Mastery Notes + General Knowledge
+        const quizData = [
+            {
+                q: "What does CSS stand for?",
+                options: ["Computer Style Sheets", "Cascading Style Sheets", "Creative Style Sheets", "Colorful Style Sheets"],
+                correct: 1,
+                explanation: "CSS stands for Cascading Style Sheets. It describes how HTML elements are to be displayed."
+            },
+            {
+                q: "Which HTML tag is used to define an internal style sheet?",
+                options: ["<css>", "<script>", "<style>", "<link>"],
+                correct: 2,
+                explanation: "The <style> element is used inside the <head> to define internal CSS."
+            },
+            {
+                q: "Which is the correct CSS syntax to change the background color of the body to lightgray?",
+                options: ["body:color=lightgray;", "{body;background:lightgray;}", "body {background-color: lightgray;}", "body.bg = lightgray;"],
+                correct: 2,
+                explanation: "The correct syntax uses the selector 'body' followed by braces and the property 'background-color'."
+            },
+            {
+                q: "How do you insert a comment in a CSS file?",
+                options: ["// this is a comment", "/* this is a comment */", "' this is a comment", "<!-- this is a comment -->"],
+                correct: 1,
+                explanation: "CSS comments start with /* and end with */."
+            },
+            {
+                q: "Which property controls the text size?",
+                options: ["font-style", "text-size", "font-size", "text-style"],
+                correct: 2,
+                explanation: "The 'font-size' property sets the size of the text (e.g., 20px)."
+            },
+            {
+                q: "In CSS, how do you select an element with id='demo'?",
+                options: ["#demo", ".demo", "demo", "*demo"],
+                correct: 0,
+                explanation: "The hash (#) symbol is used to select elements with a specific ID."
+            },
+            {
+                q: "In CSS, how do you select elements with class='test'?",
+                options: ["#test", ".test", "test", "*test"],
+                correct: 1,
+                explanation: "The period (.) character is used to select elements with a specific class."
+            },
+            {
+                q: "What is the default value of the 'position' property?",
+                options: ["relative", "fixed", "absolute", "static"],
+                correct: 3,
+                explanation: "HTML elements are positioned static by default."
+            },
+            {
+                q: "Which CSS property controls the boldness of the text?",
+                options: ["font-weight", "font-style", "text-decoration", "font-variant"],
+                correct: 0,
+                explanation: "font-weight controls thickness. Values range from 100 to 900 (or bold)."
+            },
+            {
+                q: "Which HTML attribute is used to define inline styles?",
+                options: ["styles", "font", "class", "style"],
+                correct: 3,
+                explanation: "The 'style' attribute is used to add inline CSS to an element."
+            },
+            {
+                q: "Which color format includes an 'Alpha' channel for transparency?",
+                options: ["RGB", "HSL", "HEX", "RGBA"],
+                correct: 3,
+                explanation: "RGBA stands for Red Green Blue Alpha. The Alpha value (0-1) controls opacity."
+            },
+            {
+                q: "According to the 'Box Model', what is the innermost part?",
+                options: ["Border", "Margin", "Content", "Padding"],
+                correct: 2,
+                explanation: "The Box Model consists of: Margin (outer), Border, Padding, and Content (inner)."
+            },
+            {
+                q: "How do you make each word in a text start with a capital letter?",
+                options: ["text-transform: capitalize;", "text-style: capital;", "transform: uppercase;", "font-transform: capitalize;"],
+                correct: 0,
+                explanation: "text-transform: capitalize; transforms the first character of each word to uppercase."
+            },
+            {
+                q: "Which selector applies a style to all elements on the page?",
+                options: ["The ID selector #", "The Universal selector *", "The Root selector", "The Body selector"],
+                correct: 1,
+                explanation: "The asterisk (*) is the universal selector and matches every element."
+            },
+            {
+                q: "What is the correct HTML tag for the largest heading?",
+                options: ["<heading>", "<h6>", "<head>", "<h1>"],
+                correct: 3,
+                explanation: "<h1> defines the most important heading. <h6> defines the least important."
+            },
+            {
+                q: "Which property is used to change the text color of an element?",
+                options: ["font-color", "fgcolor", "text-color", "color"],
+                correct: 3,
+                explanation: "The 'color' property is used to set the color of the text."
+            },
+            {
+                q: "How do you group multiple selectors to share the same styles?",
+                options: ["Separate with spaces", "Separate with commas", "Separate with plus signs", "Separate with semicolons"],
+                correct: 1,
+                explanation: "You can group selectors by separating them with commas (e.g., h1, p, div)."
+            },
+            {
+                q: "Which priority rule generally wins if !important is NOT used?",
+                options: ["Browser Default > Inline", "External > Inline", "Inline > Internal/External", "Internal > Inline"],
+                correct: 2,
+                explanation: "Inline styles (inside HTML tag) have higher priority than Internal or External styles."
+            },
+            {
+                q: "Which tool allows you to inspect and debug HTML/CSS in the browser?",
+                options: ["View Source", "Terminal", "Chrome DevTools", "Notepad"],
+                correct: 2,
+                explanation: "Chrome DevTools (Inspect Element) is the most powerful tool for debugging."
+            },
+            {
+                q: "Which property specifies the space between the element's border and its content?",
+                options: ["margin", "padding", "spacing", "gap"],
+                correct: 1,
+                explanation: "Padding is the space inside the border, around the content."
+            },
+            {
+                q: "How do you display hyperlinks without an underline?",
+                options: ["text-decoration: none;", "text-decoration: no-underline;", "underline: none;", "decoration: text-none;"],
+                correct: 0,
+                explanation: "text-decoration: none; removes the default underline from links."
+            },
+            {
+                q: "Which unit is relative to the font-size of the root element (html)?",
+                options: ["em", "px", "rem", "%"],
+                correct: 2,
+                explanation: "rem stands for 'root em' and is relative to the root html element's font-size."
+            },
+            {
+                q: "Which HTML tag is used to create a line break?",
+                options: ["<lb>", "<br>", "<break>", "<ln>"],
+                correct: 1,
+                explanation: "<br> inserts a single line break."
+            },
+            {
+                q: "Which attribute specifies the path to an image in the <img> tag?",
+                options: ["href", "link", "src", "path"],
+                correct: 2,
+                explanation: "The src (source) attribute specifies the URL of the image."
+            },
+            {
+                q: "What is the correct HTML for creating a hyperlink?",
+                options: ["<a url='http://google.com'>Google</a>", "<a href='http://google.com'>Google</a>", "<a name='http://google.com'>Google</a>", "<a>http://google.com</a>"],
+                correct: 1,
+                explanation: "The href attribute specifies the link's destination URL."
+            },
+            {
+                q: "Which CSS property controls the type of cursor to be displayed?",
+                options: ["pointer", "cursor", "mouse", "hand"],
+                correct: 1,
+                explanation: "The 'cursor' property specifies the mouse cursor to be displayed (e.g., pointer, text)."
+            },
+            {
+                q: "Which HTML element is a block-level element?",
+                options: ["<span>", "<img>", "<div>", "<a>"],
+                correct: 2,
+                explanation: "<div> is a block-level element, meaning it starts on a new line and takes up full width."
+            },
+            {
+                q: "What is the generic font-family used as a fallback for sans-serif fonts?",
+                options: ["serif", "sans-serif", "monospace", "cursive"],
+                correct: 1,
+                explanation: "If specific fonts fail, 'sans-serif' is the generic family system uses."
+            },
+            {
+                q: "Which CSS property is used to create space OUTSIDE the border?",
+                options: ["padding", "margin", "border-spacing", "outline"],
+                correct: 1,
+                explanation: "Margin clears an area outside the border."
+            },
+            {
+                q: "Which symbol represents the ID selector in CSS?",
+                options: [".", "#", "*", "@"],
+                correct: 1,
+                explanation: "The # symbol is used for ID selectors."
+            },
+            {
+                q: "What does HTML stand for?",
+                options: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language", "Hyper Tool Multi Language"],
+                correct: 0,
+                explanation: "HTML stands for Hyper Text Markup Language."
+            },
+            {
+                q: "Which CSS property allows you to make an element transparent?",
+                options: ["visibility", "display", "opacity", "transparent"],
+                correct: 2,
+                explanation: "The opacity property sets the opacity level (0.0 to 1.0)."
+            }
+        ];
+
+        // State
+        let currentQuestion = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultScreen = document.getElementById('result-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const questionNumber = document.getElementById('question-number');
+        const progressBar = document.getElementById('progress-bar');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const submitBtn = document.getElementById('submit-btn');
+
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const data = quizData[currentQuestion];
+            questionText.innerText = data.q;
+            questionNumber.innerText = `QUESTION ${currentQuestion + 1}/${quizData.length}`;
+            
+            // Update Progress
+            const progress = ((currentQuestion) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+
+            // Generate Options
+            data.options.forEach((option, index) => {
+                const isSelected = userAnswers[currentQuestion] === index;
+                
+                const optionHtml = `
+                    <label class="option-label block relative">
+                        <input type="radio" name="option" class="option-radio" value="${index}" 
+                            onchange="selectOption(${index})" ${isSelected ? 'checked' : ''}>
+                        <div class="option-card p-4 rounded-lg bg-white hover:bg-gray-50 flex items-center">
+                            <div class="w-6 h-6 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center text-blue-600">
+                                ${isSelected ? '<div class="w-3 h-3 bg-blue-600 rounded-full"></div>' : ''}
+                            </div>
+                            <span class="text-gray-700 font-medium">${option}</span>
+                        </div>
+                    </label>
+                `;
+                optionsContainer.insertAdjacentHTML('beforeend', optionHtml);
+            });
+
+            // Button Logic
+            prevBtn.classList.toggle('hidden', currentQuestion === 0);
+            
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+
+            // Disable Next/Submit if no answer selected
+            const hasAnswer = userAnswers[currentQuestion] !== null;
+            nextBtn.disabled = !hasAnswer;
+            submitBtn.disabled = !hasAnswer;
+        }
+
+        function selectOption(index) {
+            userAnswers[currentQuestion] = index;
+            // Re-render to show selection styling
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            quizContainer.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            calculateResults();
+        }
+
+        function calculateResults() {
+            let score = 0;
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = '';
+
+            quizData.forEach((data, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer === data.correct;
+                
+                if (isCorrect) score++;
+
+                // Generate Review Card
+                const reviewHtml = `
+                    <div class="border rounded-lg p-4 ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}">
+                        <p class="font-bold text-gray-800 mb-2">Q${index + 1}: ${data.q}</p>
+                        
+                        <div class="space-y-1 mb-3">
+                            <p class="text-sm">
+                                <span class="font-semibold">Your Answer:</span> 
+                                <span class="${isCorrect ? 'text-green-700' : 'text-red-600'}">
+                                    ${data.options[userAnswer]} 
+                                    ${isCorrect ? '✅' : '❌'}
+                                </span>
+                            </p>
+                            ${!isCorrect ? `
+                                <p class="text-sm text-green-700">
+                                    <span class="font-semibold">Correct Answer:</span> ${data.options[data.correct]}
+                                </p>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="text-xs text-gray-500 bg-white p-2 rounded border border-gray-100">
+                            <strong>Explanation:</strong> ${data.explanation}
+                        </div>
+                    </div>
+                `;
+                reviewContainer.insertAdjacentHTML('beforeend', reviewHtml);
+            });
+
+            // Update Score Display
+            document.getElementById('final-score').innerText = score;
+            const percentage = (score / quizData.length) * 100;
+            
+            let message = "";
+            if (percentage === 100) message = "Perfect Score! You are a Master! 🏆";
+            else if (percentage >= 80) message = "Excellent Work! 🌟";
+            else if (percentage >= 60) message = "Good Effort! Keep Learning. 📚";
+            else message = "Don't give up! Review the notes and try again. 💪";
+            
+            document.getElementById('score-message').innerText = message;
+        }
+    </script>
+</body>
+</html>
